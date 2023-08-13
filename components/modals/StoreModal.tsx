@@ -20,7 +20,7 @@ import axios from 'axios'
 import { toast } from 'react-hot-toast'
 
 const formSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, 'Name is required'),
 })
 
 export const StoreModal = () => {
