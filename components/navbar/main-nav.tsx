@@ -12,6 +12,11 @@ export default function MainNav({
   const params = useParams()
   const routes = [
     {
+      href: `/${params.storeId}`,
+      label: 'Dashboard',
+      isActive: pathname === `/${params.storeId}`,
+    },
+    {
       href: `/${params.storeId}/settings`,
       label: 'Settings',
       isActive: pathname === `/${params.storeId}/settings`,
@@ -26,7 +31,7 @@ export default function MainNav({
           className={cn(
             'text-sm font-md transition-colors hover:text-primary hover:underline',
             isActive
-              ? 'text-black dark:text-white underline'
+              ? 'text-black font-semibold dark:text-white '
               : 'text-muted-foreground'
           )}
         >

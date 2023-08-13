@@ -17,6 +17,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { toast } from 'react-hot-toast'
+import axios from 'axios'
+import { useParams, useRouter } from 'next/navigation'
+import AlertModal from '@/components/modals/alert-modal'
+import ApiAlert from '@/components/ui/api-alert'
+import useOrigin from '@/hooks/use-origin'
 
 interface SettingFormProps {
   initialData: Store
@@ -29,6 +35,9 @@ const formSchema = z.object({
 type SettingFormValues = z.infer<typeof formSchema>
 
 export default function SettingsForm({ initialData }: SettingFormProps) {
+  const origin = useOrigin()
+  const { storeId } = useParams()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -38,14 +47,50 @@ export default function SettingsForm({ initialData }: SettingFormProps) {
   })
 
   const onSubmit = async (values: SettingFormValues) => {
-    console.log(values)
+    try {
+      setLoading(true)
+      await axios.patch(`/api/stores/${storeId}`, values)
+      router.refresh()
+      toast.success('Store updated.')
+    } catch (err: any) {
+      toast.error(err.message ?? 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onDelete = async () => {
+    try {
+      setLoading(true)
+      await axios.delete(`/api/stores/${storeId}`)
+      router.refresh()
+      router.push('/')
+    } catch (err: any) {
+      toast.error(
+        err.message ?? 'Make sure to delete all products and categories first.'
+      )
+    } finally {
+      setOpen(false)
+      setLoading(false)
+    }
   }
 
   return (
     <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={onDelete}
+        loading={loading}
+      />
       <div className='flex items-center justify-between'>
         <Heading title='Settings' desc="Manage your store's settings" />
-        <Button variant={'destructive'} size={'sm'} onClick={() => {}}>
+        <Button
+          disabled={loading}
+          variant={'destructive'}
+          size={'sm'}
+          onClick={() => setOpen(true)}
+        >
           <Trash className='w-4 h-4' />
         </Button>
       </div>
@@ -79,6 +124,12 @@ export default function SettingsForm({ initialData }: SettingFormProps) {
           </Button>
         </form>
       </FormProvider>
+      <Separator />
+      <ApiAlert
+        title='NEXT_PUBLIC_API_URL'
+        desc={`${origin}/api/stores/${storeId}`}
+        variant='public'
+      />
     </>
   )
 }
