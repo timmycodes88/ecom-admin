@@ -38,7 +38,7 @@ interface BillboardFormProps {
 
 export default function BillboardForm({ initialData }: BillboardFormProps) {
   const origin = useOrigin()
-  const { storeId } = useParams()
+  const { storeId, billboardId } = useParams()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -59,9 +59,11 @@ export default function BillboardForm({ initialData }: BillboardFormProps) {
   const onSubmit = async (values: BillboardFormValues) => {
     try {
       setLoading(true)
-      await axios.patch(`/api/stores/${storeId}`, values)
+      if (initialData)
+        await axios.patch(`/api/${storeId}/billboards/${billboardId}`, values)
+      else await axios.post(`/api/${storeId}/billboards`, values)
       router.refresh()
-      toast.success('Store updated.')
+      toast.success(toastMessage)
     } catch (err: any) {
       toast.error(err.message ?? 'Something went wrong')
     } finally {
@@ -72,12 +74,12 @@ export default function BillboardForm({ initialData }: BillboardFormProps) {
   const onDelete = async () => {
     try {
       setLoading(true)
-      await axios.delete(`/api/stores/${storeId}`)
+      await axios.delete(`/api/${storeId}/billboards/${billboardId}`)
       router.refresh()
       router.push('/')
     } catch (err: any) {
       toast.error(
-        err.message ?? 'Make sure to delete all products and categories first.'
+        'Make sure to delete all categories for this billboard first.'
       )
     } finally {
       setOpen(false)
