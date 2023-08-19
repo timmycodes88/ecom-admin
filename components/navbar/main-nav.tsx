@@ -17,6 +17,11 @@ export default function MainNav({
       isActive: pathname === `/${params.storeId}`,
     },
     {
+      href: `/${params.storeId}/billboards`,
+      label: 'Billboards',
+      isActive: pathname === `/${params.storeId}/billboards`,
+    },
+    {
       href: `/${params.storeId}/settings`,
       label: 'Settings',
       isActive: pathname === `/${params.storeId}/settings`,
